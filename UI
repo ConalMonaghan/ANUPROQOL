@@ -26,27 +26,25 @@ shinyUI(
                            
                                           )), # close sidebar
                   
-                  dashboardBody(                                      # Open the Body
+                    dashboardBody(                                      # Open the Body
                     tabItems(                                         # Start the tab items
                       tabItem(tabName = "Welcome",                    # Start Welcome Tab
                               tags$p("COMPASSION SATISFACTION AND COMPASSION FATIGUE (PROQOL) VERSION 5 (2009): SQOL INFO"),
-                              
+                              tags$p("This site allows you to measure your fatigue and burnout as a clinician, and track it over time, using the tabs on the left"), tags$br(),
                               tags$p("Professional quality of life is the quality one feels in relation to their work as a helper. Both the positive and negative aspects of doing one’s job
                                influence ones professional quality of life. People who work in helping professions may respond to individual, community, national, and even international crises.
-                               Helpers can be found in the health care professionals, social service workers, teachers, attorneys, police officers, firefighters, clergy, airline and other transportation 
-                               staff, disaster site clean‐up crews, and others who offer assistance at the time of the event or later. Professional quality of life incorporates two aspects, the positive 
-                               (Compassion Satisfaction) and the negative (Compassion Fatigue). Compassion fatigue breaks into two parts. The first part concerns things such like exhaustion, frustration, 
+                               Professional quality of life incorporates two aspects, the positive (Compassion Satisfaction) and the negative (Compassion Fatigue). Compassion fatigue breaks into two parts. The first part concerns things such like exhaustion, frustration, 
                                anger and depression typical of burnout. Secondary Traumatic Stress is a negative feeling driven by fear and work‐related trauma. Some trauma at work can be direct (primary) 
                                trauma. In other cases, work‐related trauma be a combination of both primary and secondary trauma."),
 
                               tags$p("The Professional Quality of Life Scale, known as the ProQOL, is the most commonly used measure of the positive and negative effects of working with people who have experienced 
-                               extremely stressful events. Of the 100 papers in the PILOTS database (the Published Literature in Posttraumatic Stress Disorder), 46 used a version of the ProQOL. The measure was
-                               originally called the Compassion Fatigue Self Test and developed by Charles Figley in the late 1980s Stamm and Figley began collaborating in 1988. In 1993, Stamm added the concept of
+                               extremely stressful events. The measure was originally called the Compassion Fatigue Self Test and developed by Charles Figley in the late 1980s Stamm and Figley began collaborating in 1988. In 1993, Stamm added the concept of
                                compassion satisfaction and the name of the measure changed to the Compassion Satisfaction and Fatigue Test, of which there were several versions. These versions in the early 1990s were
                                Figley and Stamm, then Stamm and Figley. Through a positive joint agreement between Figley and Stamm the measure shifted entirely to Stamm in the late 1990s and was renamed the Professional
-                               Quality of Life Scale. The ProQOL, originally developed in English, is translated into Finnish, French, German, Hebrew, Italian, Japanese, Spanish, Croat. European Portuguese and Russian translations
-                               are in process."),
+                               Quality of Life Scale"), tags$a(href="http://www.proqol.org/ProQol_Test.html", "For more information on the measure and the authors click here"), tags$br(),
                                tags$img(src='PROQOL.png')             # PROQOL Figure
+                              
+         
                               
                              ),                                       # Close Welcome Tab
                       
