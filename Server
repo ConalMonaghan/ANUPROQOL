@@ -1,0 +1,154 @@
+
+# This is the server logic for a Shiny web application.
+# You can find out more about building applications with Shiny here:
+#
+# http://shiny.rstudio.com
+#
+# Note, all links to my googlesheets have been removed. You will need to setup your own Gsheets to run the code. 
+library(shiny)
+library(shinydashboard)
+library("googlesheets")
+library("ggplot2")
+suppressMessages(library(dplyr))
+library(scales)
+
+
+# Setup Token for storing data (Stored in dir()  )
+gs_auth(new_user = FALSE, gs_auth(token = "INSERT YOUR TOKEN HERE")) 
+Data <- gs_key("INSERT YOUR KEY HERE")     # Register clinical Data sheet
+shinyServer(function(input, output) {
+
+  
+  
+## Calculate SQOL Scores
+  
+  Compassion_Satisfaction <- reactive({
+    (as.numeric(input$Score3) + as.numeric(input$Score6) + as.numeric(input$Score12) + as.numeric(input$Score16) + as.numeric(input$Score18) + as.numeric(input$Score20) +
+       as.numeric(input$Score22) + as.numeric(input$Score24) + as.numeric(input$Score27) + as.numeric(input$Score30) # Scores are totalled 
+                                         )})
+  output$CS_Score <- renderText({paste(Compassion_Satisfaction())})
+  
+    Burnout <- reactive({
+      (as.numeric(input$Score1) + as.numeric(input$Score4) + as.numeric(input$Score8) + as.numeric(input$Score10) + as.numeric(input$Score15) + as.numeric(input$Score17) +
+         as.numeric(input$Score19) + as.numeric(input$Score21) + as.numeric(input$Score26) + as.numeric(input$Score29) # Scores are totalled 
+                                          )})
+    output$Burn_Score <- renderText({paste(Burnout())})
+      
+      Secondary_Trauma <- reactive({
+        (as.numeric(input$Score2) + as.numeric(input$Score5) + as.numeric(input$Score7) + as.numeric(input$Score9) + as.numeric(input$Score11) + as.numeric(input$Score13) +
+           as.numeric(input$Score14) + as.numeric(input$Score23) + as.numeric(input$Score25) + as.numeric(input$Score28) # Scores are totalled 
+                                          )})
+      output$Trauma_Score <- renderText({paste(Secondary_Trauma())})
+        
+        
+## Creat text output
+      
+ output$Compassion.txt <- renderText({paste(
+                                      "Your score on the compassion satisfaction subscale was", Compassion_Satisfaction(), ". The average score is between 23 and 41. About
+                                      25% of people score higher than 42 and about 25% of people score below 22. If you are in the higher range, you probably derive a good deal of
+                                      professional satisfaction from your position. If your scores are below 22, you may either find problems with your job, or there may be some other
+                                      reasonefor example, you might derive your satisfaction from activities other than your job"
+                                     )})            # Close Compassion Text
+ 
+ 
+ output$Burn.txt <- renderText({paste(
+                                "Your score on the Burnout subscale was", Burnout(), ". 
+                                The average score on the burnout scale is between 23 and 41. About 25% of people score above 42 and about 25% of people score below 22. If your score is below 22, this probably
+                                reflects positive feelings about your ability to be effective in your work. If you score above 42 you may wish to think about what at work makes you feel like you are not effective
+                                in your position. Your score may reflect your mood; perhaps you were having a bad day or are in need of some time off. If the high score persists or if it is reflective of other 
+                                worries, it may be a cause for concern."
+                                 )})            # Close Burnout Text
+ 
+output$Trauma.txt <- renderText({paste(
+                                        "Your score on the Seconfary Trauma scale was", Secondary_Trauma(), ". The average score on this scale is between 23 and 41. About 25% of people score below 22 and about 
+                                        25% of people score above 42. If your score is above 42, you may want to take some time to think about what at work may be frightening to you or if there is some other reason for the elevated 
+                                        score. While higher scores do not mean that you do have a problem, they are an indication that you may want to examine how you feel about your work and your work environment. You may wish to 
+                                        discuss this with your supervisor, a colleague, or a health care professional."
+                                    )})            # Close Trauma Text
+ 
+
+
+################################# Create Datarecord for History Section   ####################
+
+
+### Create Data File
+Date <- reactive(format(Sys.Date(), format="%m/%d/%y")
+                )
+
+
+Results <-reactive(c(input$UserID,
+  input$Score1, input$Score2, input$Score3, input$Score4, input$Score5, input$Score6, input$Score7, input$Score8, input$Score9, input$Score10, input$Score11, input$Score12, input$Score13, input$Score14, input$Score15, input$Score16,
+   input$Score17, input$Score18, input$Score19, input$Score20, input$Score21, input$Score22, input$Score23, input$Score24, input$Score25, input$Score26, input$Score27, input$Score28, input$Score29, input$Score30, 
+  
+  Compassion_Satisfaction(), Burnout(), Secondary_Trauma(), input$Gender, Date()
+  
+                   ))  
+  
+  
+#### Create New Row in Dataset for input
+observeEvent(input$n, {                                                                 #  Observe event action from Actionbutton
+Data  <- Data  %>% 
+    gs_add_row(ws = "Sheet1", input = Results())                                           #  When actionbutton is pressed this will add their data to the good .doc                    
+}
+)
+
+
+################################# Create History Section   ####################
+
+
+# Pull in Dataset
+Scores <- Data %>% gs_read(ws = "Sheet1")
+Scores <- as.data.frame(Scores) 
+
+
+Participant <- reactive({
+                       Scores[which(Scores$ID == input$FindID),]       
+} )
+ 
+ 
+ #Participant <- reactive({subset(Scores, ID == Participant()   )         # Subset Data by user
+#                        } )
+
+#########   PLOTS
+################ Plot compassion        
+
+output$Compassion.Plot <- renderPlot({
+qplot(as.Date(Participant()$Sys.time, format="%m/%d/%y"), Participant()$Compassion_Satisfaction) + 
+    ggtitle("Your Compassion Satisfaction over time") + 
+    xlab("Date") + 
+    geom_point(colour="blue") + 
+    ylab("Compassion Satisfaction Score") + 
+    ylim(0, 50) + 
+    geom_line(colour="red") + 
+     geom_hline(yintercept=22.5, linetype="dashed") +                 # Lower Bound Line
+    geom_hline(yintercept=41.5, linetype="dashed") +                  # Upper Bound Line
+    geom_line(color = "red")
+})
+
+output$Burn.Plot <- renderPlot({
+  qplot(as.Date(Participant()$Sys.time, format="%m/%d/%y"), Participant()$Burnout) + 
+    ggtitle("Your Clincian burnout over time") + 
+    xlab("Date") + 
+    geom_point(colour="blue") + 
+    ylab("Burnout Score") + 
+    ylim(0, 50) + 
+    geom_line(colour="red") + 
+    geom_hline(yintercept=22.5, linetype="dashed") +                  # Lower Bound Line
+    geom_hline(yintercept=41.5, linetype="dashed") +                  # Upper Bound Line
+    geom_line(color = "red")
+})
+
+output$Trauma.Plot <- renderPlot({
+  qplot(as.Date(Participant()$Sys.time, format="%m/%d/%y"), Participant()$Secondary_Trauma) + 
+    ggtitle("Your Secondary Truma over time") + 
+    xlab("Date") + 
+    geom_point(colour="blue") + 
+    ylab("Secondary Trauma Score") + 
+    ylim(0, 50) + 
+    geom_line(colour="red") + 
+    geom_hline(yintercept=22.5, linetype="dashed") +                  # Lower Bound Line
+    geom_hline(yintercept=41.5, linetype="dashed") +                  # Upper Bound Line
+    geom_line(color = "red")
+})
+
+}) # Close Server
