@@ -1,0 +1,333 @@
+# This is the user-interface definition of a Shiny web application.
+# You can find out more about building applications with Shiny here:
+#
+# http://shiny.rstudio.com
+# Note, all links to my googlesheets have been removed. You will need to setup your own Gsheets to run the code. 
+
+# Setup 
+library("shiny")
+library("shinydashboard")
+library("googlesheets")
+library("DT")
+
+shinyUI( 
+  dashboardPage(skin = "blue", # UI = User interface, this produces .html code for the end user. UI object
+                # Application title
+                dashboardHeader(title = "PROFESSIONAL QUALITY OF LIFE SCALE (PROQOL)", titleWidth = 500),
+                
+                
+                
+                
+                dashboardSidebar(sidebarMenu(
+                  menuItem("Welcome", tabName = "Welcome", icon = icon("smile-o")),
+                  menuItem("PROQOL (V5, 2009)", tabName = "PROQOL", icon = icon("thermometer-three-quarters")),
+                  menuItem("My History", tabName = "Scores", icon = icon("user-circle-o")),
+                  menuItem("Shiny Code", icon = icon("info-circle"), href = "https://github.com/ConalMonaghan/ANUPROQOL")
+                           
+                                          )), # close sidebar
+                  
+                  dashboardBody(                                      # Open the Body
+                    tabItems(                                         # Start the tab items
+                      tabItem(tabName = "Welcome",                    # Start Welcome Tab
+                              tags$p("COMPASSION SATISFACTION AND COMPASSION FATIGUE (PROQOL) VERSION 5 (2009): SQOL INFO"),
+                              
+                              tags$p("Professional quality of life is the quality one feels in relation to their work as a helper. Both the positive and negative aspects of doing one’s job
+                               influence ones professional quality of life. People who work in helping professions may respond to individual, community, national, and even international crises.
+                               Helpers can be found in the health care professionals, social service workers, teachers, attorneys, police officers, firefighters, clergy, airline and other transportation 
+                               staff, disaster site clean‐up crews, and others who offer assistance at the time of the event or later. Professional quality of life incorporates two aspects, the positive 
+                               (Compassion Satisfaction) and the negative (Compassion Fatigue). Compassion fatigue breaks into two parts. The first part concerns things such like exhaustion, frustration, 
+                               anger and depression typical of burnout. Secondary Traumatic Stress is a negative feeling driven by fear and work‐related trauma. Some trauma at work can be direct (primary) 
+                               trauma. In other cases, work‐related trauma be a combination of both primary and secondary trauma."),
+
+                              tags$p("The Professional Quality of Life Scale, known as the ProQOL, is the most commonly used measure of the positive and negative effects of working with people who have experienced 
+                               extremely stressful events. Of the 100 papers in the PILOTS database (the Published Literature in Posttraumatic Stress Disorder), 46 used a version of the ProQOL. The measure was
+                               originally called the Compassion Fatigue Self Test and developed by Charles Figley in the late 1980s Stamm and Figley began collaborating in 1988. In 1993, Stamm added the concept of
+                               compassion satisfaction and the name of the measure changed to the Compassion Satisfaction and Fatigue Test, of which there were several versions. These versions in the early 1990s were
+                               Figley and Stamm, then Stamm and Figley. Through a positive joint agreement between Figley and Stamm the measure shifted entirely to Stamm in the late 1990s and was renamed the Professional
+                               Quality of Life Scale. The ProQOL, originally developed in English, is translated into Finnish, French, German, Hebrew, Italian, Japanese, Spanish, Croat. European Portuguese and Russian translations
+                               are in process."),
+                               tags$img(src='PROQOL.png')             # PROQOL Figure
+                              
+                             ),                                       # Close Welcome Tab
+                      
+                      tabItem(tabName = "PROQOL",                     # Open PROQOL
+                              conditionalPanel("input.n == 0",        # Open questions 
+                              "When you [help] people you have direct contact with their lives. As you may have found, your compassion for those you [help] can affect you in positive and negative ways. Below are some questions
+                               about your experiences, both positive and negative, as a [helper]. Consider each of the following questions about you and your current work situation. Select the number that honestly reflects how 
+                               frequently you experienced these things in the last 30 days.",
+                              tags$hr(), 
+                              
+                              "Please create a User ID (if you want to record your scores over time). Make this something that no one else will likely use, and easy for you to remember. E.g., Initials + pet's name. Please make this as unique as possible, at the moment
+                               there is no way to detect double enteries", textAreaInput(inputId = "UserID", label = "ID", value = ""),
+                              
+                              selectInput(inputId = "Score1",                                                               # What we are calling the object
+                                          label = "I am happy",                                                             # Question
+                                          choices = c("Never" = 5, "Rarely" = 4, "Sometimes" = 3, 
+                                                      "Often" = 2, "Very Often" = 1),
+                                          selected = 3
+                              ), 
+                              
+                              selectInput(inputId = "Score2",                                # What we are calling the object
+                                          label = "I am preoccupied with more than one person I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),
+                              
+                              selectInput(inputId = "Score3",                                # What we are calling the object
+                                          label = "I get satisfaction from being able to [help] people.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score4",                                # What we are calling the object
+                                          label = "I feel connected to others.",                                                                                      # Question
+                                          choices = c("Never" = 5, "Rarely" = 4, "Sometimes" = 3, 
+                                                      "Often" = 2, "Very Often" = 1),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score5",                                # What we are calling the object
+                                          label = "I jump or am startled by unexpected sounds.",                                                                     # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score6",                                # What we are calling the object
+                                          label = "I feel invigorated after working with those I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score7",                                # What we are calling the object
+                                          label = "I find it difficult to separate my personal life from my life as a [helper].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score8",                                # What we are calling the object
+                                          label = "I am not as productive at work because I am losing sleep over traumatic experiences of a person I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score9",                                # What we are calling the object
+                                          label = "I think that I might have been affected by the traumatic stress of those I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score10",                                # What we are calling the object
+                                          label = "I feel trapped by my job as a [helper].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score11",                                # What we are calling the object
+                                          label = "Because of my [helping], I have felt on edge about various things.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score12",                                # What we are calling the object
+                                          label = "I like my work as a [helper].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score13",                                # What we are calling the object
+                                          label = "I feel depressed because of the traumatic experiences of the people I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score14",                                # What we are calling the object
+                                          label = "I feel as though I am experiencing the trauma of someone I have [helped].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score15",                                # What we are calling the object
+                                          label = "I have beliefs that sustain me.",                                                             # Question
+                                          choices = c("Never" = 5, "Rarely" = 4, "Sometimes" = 3, 
+                                                      "Often" = 2, "Very Often" = 1),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score16",                                # What we are calling the object
+                                          label = "I am pleased with how I am able to keep up with [helping] techniques and protocols.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score17",                                # What we are calling the object
+                                          label = "I am the person I always wanted to be.",                                                             # Question
+                                          choices = c("Never" = 5, "Rarely" = 4, "Sometimes" = 3, 
+                                                      "Often" = 2, "Very Often" = 1),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score18",                                # What we are calling the object
+                                          label = "My work makes me feel satisfied.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score19",                                # What we are calling the object
+                                          label = "I feel worn out because of my work as a [helper].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score20",                                # What we are calling the object
+                                          label = "I have happy thoughts and feelings about those I [help] and how I could help them.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score21",                                # What we are calling the object
+                                          label = "I feel overwhelmed because my case [work] load seems endless.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score22",                                # What we are calling the object
+                                          label = "I believe I can make a difference through my work.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score23",                                # What we are calling the object
+                                          label = "I avoid certain activities or situations because they remind me of frightening experiences of the people I [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score24",                                # What we are calling the object
+                                          label = "I am proud of what I can do to [help].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score25",                                # What we are calling the object
+                                          label = "As a result of my [helping], I have intrusive, frightening thoughts.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score26",                                # What we are calling the object
+                                          label = "I feel bogged down by the system.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score27",                                # What we are calling the object
+                                          label = "I have thoughts that I am a success as a [helper].",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score28",                                # What we are calling the object
+                                          label = "I can't recall important parts of my work with trauma victims.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score29",                                # What we are calling the object
+                                          label = "I am a very caring person.",                                                             # Question
+                                          choices = c("Never" = 5, "Rarely" = 4, "Sometimes" = 3, 
+                                                      "Often" = 2, "Very Often" = 1),
+                                          selected = 3
+                              ),   
+                              selectInput(inputId = "Score30",                                # What we are calling the object
+                                          label = "I am happy that I chose to do this work.",                                                             # Question
+                                          choices = c("Never" = 1, "Rarely" = 2, "Sometimes" = 3, 
+                                                      "Often" = 4, "Very Often" = 5),
+                                          selected = 3
+                              ),  
+                              
+                              # Gender 
+                              selectInput(inputId = "Gender",                                                                                      # What we are calling the object
+                                          label = "What is your gender identity?",                                                                  # Question
+                                          choices = c("Female" = 1, "Male" = 0, "Trans/intersex, other" = 3,                                        # Responses
+                                                      "Prefer not to say" = 4)            
+                              ), 
+                           
+                              tags$br(),tags$hr(),  # Add some space                              
+                              
+                              
+                              actionButton(inputId = "n", label = "Submit", icon = icon("user-circle")) ## insert the survey / results selector
+                              
+                              , tags$br(), tags$br(), tags$br(), tags$br()
+                                               ),    # Close question conditional 
+
+                      
+                              conditionalPanel("input.n == 1",         ## Start the conditional Panel for the Results
+                              
+                              box(title = "Compassion Satisfaction", h3(textOutput("CS_Score")),  "Compassion satisfaction is about the pleasure you derive from being able to do your work well. For example, you may feel like it is a 
+                                      pleasure to help others through your work. You may feel positively about your colleagues or your ability to contribute to the work setting 
+                                  or even the greater good of society. Higher scores on this scale represent a greater satisfaction related to your ability to be an effective
+                                  caregiver in your job.", tags$br(), textOutput("Compassion.txt")),  
+                              
+                              
+                              box(title = "Burnout", h3(textOutput("Burn_Score")), tags$br(), "Most people have an intuitive idea of what burnout is. From the research perspective, burnout is one of the elements of Compassion Fatigue (CF). It is associated
+                                with feelings of hopelessness and difficulties in dealing with work or in doing your job effectively. These negative feelings usually have a gradual onset. They can
+                                  reflect the feeling that your efforts make no difference, or they can be associated with a very high workload or a non-supportive work environment. Higher scores on this
+                                  scale mean that you are at higher risk for burnout." , textOutput("Burn.txt")),     
+                              
+                              
+                              box(title = "Secondary Trauma", h3(textOutput("Trauma_Score")), "The second component of Compassion Fatigue (CF) is secondary traumatic stress (STS). It is about your work related, secondary exposure to extremely or traumatically stressful
+                                        events. Developing problems due to exposure to otheris trauma is somewhat rare but does happen to many people who care for those who have experienced extremely or traumatically
+                                  stressful events. For example, you may repeatedly hear stories about the traumatic things that happen to other people, commonly called Vicarious Traumatization. If your work puts
+                                  you directly in the path of danger, for example, field work in a war or area of civil violence, this is not secondary exposure; your exposure is primary. However, if you are exposed 
+                                  to others traumatic events as a result of your work, for example, as a therapist or an emergency worker, this is secondary exposure. The symptoms of STS are usually rapid in onset and
+                                  associated with a particular event. They may include being afraid, having difficulty sleeping, having images of the upsetting event pop into your mind, or avoiding things that remind you
+                                  of the event.", tags$br(), textOutput("Trauma.txt"))    
+                                                 )                                      # Close Scores conditional Panel
+                      
+
+                               ),                                                                      # Close PROQOL
+                      
+                      tabItem(tabName = "Scores",                     # Open Scores Tab
+                              
+                              "Insert your user ID here to get all your previous results", textAreaInput(inputId = "FindID", label = "ID", value = "Test"),
+                              
+                               
+                              
+                              box(title = "Compassion Satisfaction", "Compassion satisfaction is about the pleasure you derive from being able to do 
+                                            your work well. For example, you may feel like it is a pleasure to help others through your work. You may 
+                                            feel positively about your colleagues or your ability to contribute to the work setting or even the greater 
+                                            good of society.", tags$br(), "The dotted lines represent the barriers between the high, average, and low categories. If you
+                                             are below the bottom line, it might be worth talking to someone about whether your role, workplace, or approach is appropriate for you"
+                                            , tags$hr(), plotOutput("Compassion.Plot")          ), 
+                              
+                              
+                              box(title = "Clinican Burnout", "Burnout is one element of the negative effects of caring that is known as Compassion Fatigue. 
+                                           Most people have an intuitive idea of what burnout is. From the research perspective, burnout is associated with 
+                                           feelings of hopelessness and difficulties in dealing with work or in doing your job effectively. These negative 
+                                          feelings usually have a gradual onset. They can reflect the feeling that your efforts make no difference, or they 
+                                         can be associated with a very high workload or a non‐supportive work environment.", tags$br(), "The dotted lines represent the barriers between the
+                                        high, average, and low categories. If you are below the bottom line, consider some time off, self-care, or reducing your commitments",
+                                         tags$hr(), plotOutput("Burn.Plot")  ),
+                              
+                              
+                              box(title = "Secondary Trauma", "Secondary Traumatic Stress (STS) is an element of Compassion fatigue (CF). STS is about work‐related,
+                                           secondary exposure to people who have experienced extremely or traumatically stressful events. The negative effects of STS 
+                                           may include fear sleep difficulties, intrusive images, or avoiding reminders of the person’s traumatic experiences. STS is
+                                          related to Vicarious Trauma as it shares many similar characteristics.", tags$br(), "The dotted lines represent the barriers between the high, 
+                                          average, and low categories. If you are above the top line, you should consider talking to a friend, supervisor, or professional regarding your experience",
+                                           tags$hr(), plotOutput("Trauma.Plot")  )     
+                              
+   
+                            
+                              )   # Close scores
+                      
+
+                      
+                      
+                             )                                      # Close Dashboard body Tab items
+                               )                                    # Close Dashboard Body 
+                  
+          )                                                         # Dashboard Page Close
+  
+)                                                                   # Full UI close                 
+                      
+                      
+                      
